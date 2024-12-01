@@ -5,22 +5,11 @@ import time
 
 
 def main():
-    left, right = [], []
-    for line in read_data().splitlines():
-        first, second = line.split()
-        left.append(int(first))
-        right.append(int(second))
-    left = sorted(left)
-    right = sorted(right)
-    distances = []
-    for i in range(len(left)):
-        distances.append(abs(left[i] - right[i]))
-    print(f"Part one: {sum(distances)}")
+    data = [[int(x) for x in line.split()] for line in read_data().splitlines()]
+    left, right = sorted([x[0] for x in data]), sorted([x[1] for x in data])
+    print(f"Part one: {sum(abs(left[i] - right[i]) for i in range(len(left)))}")
     counts = Counter(right)
-    similarities = []
-    for item in left:
-        similarities.append(item * counts[item])
-    print(f"Part two: {sum(similarities)}")
+    print(f"Part two: {sum((item * counts[item]) for item in left)}")
 
 
 if __name__ == '__main__':
