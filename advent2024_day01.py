@@ -5,11 +5,11 @@ import time
 
 
 def main():
-    data = [[int(x) for x in line.split()] for line in read_data().splitlines()]
-    left, right = sorted([x[0] for x in data]), sorted([x[1] for x in data])
+    data = [line.split() for line in read_data().splitlines()]
+    left, right = sorted([int(x[0]) for x in data]), sorted([int(x[1]) for x in data])
     print(f"Part one: {sum(abs(left[i] - right[i]) for i in range(len(left)))}")
     counts = Counter(right)
-    print(f"Part two: {sum((item * counts[item]) for item in left)}")
+    print(f"Part two: {sum(item * counts[item] for item in left)}")
 
 
 if __name__ == '__main__':
