@@ -1,8 +1,8 @@
+import time
 from math import copysign
 from typing import List
 
 from utils import read_data
-import time
 
 
 def is_safe(levels: List[int]) -> bool:
@@ -10,9 +10,11 @@ def is_safe(levels: List[int]) -> bool:
     first_sign = copysign(1, deltas[0])
     return all(1 <= abs(x) <= 3 and copysign(1, x) == first_sign for x in deltas)
 
+
 def is_safe_with_damper(levels: List[int]):
     variations = [[x for i, x in enumerate(levels) if i != to_drop] for to_drop in range(len(levels))]
     return any(is_safe(x) for x in variations)
+
 
 def main():
     data = [[int(x) for x in line.split()] for line in read_data().splitlines()]
