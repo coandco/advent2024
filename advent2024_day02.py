@@ -18,8 +18,8 @@ def is_safe_with_damper(levels: List[int]):
 
 def main():
     data = [[int(x) for x in line.split()] for line in read_data().splitlines()]
-    print(f"Part one: {len([x for x in data if is_safe(x)])}")
-    print(f"Part two: {len([x for x in data if is_safe_with_damper(x)])}")
+    print(f"Part one: {sum(is_safe(x) for x in data)}")
+    print(f"Part two: {sum(is_safe_with_damper(x) for x in data)}")
 
 
 if __name__ == "__main__":
