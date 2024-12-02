@@ -30,7 +30,7 @@ def main():
     pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     start = time.monotonic()
     main()
     print(f"Time: {time.monotonic()-start}")
