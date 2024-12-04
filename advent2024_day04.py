@@ -8,13 +8,9 @@ from utils import read_data
 
 class Board:
     board: Dict[Coord, str]
-    max_x: int
-    max_y: int
 
-    def __init__(self, board: Dict[Coord, str], max_x: int, max_y: int):
+    def __init__(self, board: Dict[Coord, str]):
         self.board = board
-        self.max_x = max_x
-        self.max_y = max_y
 
     @staticmethod
     def from_lines(lines: List[str]) -> "Board":
@@ -22,48 +18,34 @@ class Board:
         for y, line in enumerate(lines):
             for x, char in enumerate(line):
                 board[Coord(x=x, y=y)] = char
-        return Board(board, max_x=x, max_y=y)
-
-    def in_bounds(self, loc: Coord) -> bool:
-        return 0 <= loc.x <= self.max_x and 0 <= loc.y <= self.max_y
+        return Board(board)
 
     def get_word(self, loc: Coord, heading: Coord, length: int = 4) -> str:
         word = []
         for _ in range(length):
-            if not self.in_bounds(loc):
+            char = self.board.get(loc, None)
+            if not char:
                 return "".join(word)
-            word.append(self.board[loc])
+            word.append(char)
             loc = loc + heading
         return "".join(word)
 
+    def num_x_matches(self, loc: Coord) -> int:
+        return sum(self.get_word(loc, heading) == "XMAS" for heading in ALL_NEIGHBORS_2D)
+
     def scan_xmas(self) -> int:
-        seen = 0
-        for loc in self.board:
-            for heading in ALL_NEIGHBORS_2D:
-                if self.board[loc] == "X" and self.get_word(loc, heading) == "XMAS":
-                    seen += 1
-        return seen
+        return sum(self.num_x_matches(loc) for loc in self.board if self.board[loc] == "X")
 
     def check_a(self, loc: Coord) -> bool:
-        NW = loc + Coord(x=-1, y=-1)
-        SE = loc + Coord(x=1, y=1)
-        NE = loc + Coord(x=1, y=-1)
-        SW = loc + Coord(x=-1, y=1)
-        for one, two in ((NW, SE), (NE, SW)):
-            if not self.in_bounds(one) or not self.in_bounds(two):
-                return False
-            if self.board[one] not in ("M", "S"):
-                return False
-            if self.board[two] not in ("M", "S") or self.board[one] == self.board[two]:
+        NW, SE = self.board.get(loc + Coord(x=-1, y=-1)), self.board.get(loc + Coord(x=1, y=1))
+        NE, SW = self.board.get(loc + Coord(x=1, y=-1)), self.board.get(loc + Coord(x=-1, y=1))
+        for char1, char2 in ((NW, SE), (NE, SW)):
+            if {char1, char2} != {"M", "S"}:
                 return False
         return True
 
     def search_x(self) -> int:
-        seen = 0
-        for loc in self.board:
-            if self.board[loc] == "A" and self.check_a(loc):
-                seen += 1
-        return seen
+        return sum(self.check_a(x) for x in self.board if self.board[x] == "A")
 
 
 def main():
