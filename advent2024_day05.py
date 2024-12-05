@@ -14,26 +14,27 @@ class Rules:
             before, after = line.split("|", maxsplit=1)
             self.before[int(after)].add(int(before))
 
-    def validate(self, pagelist: List[int]) -> bool:
-        all_pages = set(pagelist)
-        for i, pagenum in enumerate(pagelist):
-            if (self.before[pagenum] & all_pages) - set(pagelist[:i]):
+    def validate(self, update_list: List[int]) -> bool:
+        pages_in_list = set(update_list)
+        for i, pagenum in enumerate(update_list):
+            # If there are any pages we haven't seen already that are listed as before this one
+            if (self.before[pagenum] & pages_in_list) - set(update_list[:i]):
                 return False
         return True
 
-    def reorder(self, pagelist: List[int]):
-        all_pages = set(pagelist)
+    def reorder(self, update_list: List[int]):
+        pages_in_list = set(update_list)
         # Get just the subset of self.before that contains the pages in our list
-        page_ordering = {k: v & all_pages for k, v in self.before.items() if k in all_pages}
+        local_rules = {k: v & pages_in_list for k, v in self.before.items() if k in pages_in_list}
         order = []
-        while page_ordering:
+        while local_rules:
             # Get a page that doesn't have anything before it
-            valid_page = {k for k, v in page_ordering.items() if not v}.pop()
+            valid_page = {k for k, v in local_rules.items() if not v}.pop()
             order.append(valid_page)
             # Delete the page and remove it from all sets
-            del page_ordering[valid_page]
-            for k, v in page_ordering.items():
-                v.discard(valid_page)
+            del local_rules[valid_page]
+            for before_set in local_rules.values():
+                before_set.discard(valid_page)
         return order
 
 
