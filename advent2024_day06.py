@@ -31,7 +31,7 @@ class Field:
     def in_bounds(self, loc: Coord) -> bool:
         return 0 <= loc.x <= self.max_x and 0 <= loc.y <= self.max_y
 
-    def traverse(self) -> Optional[int]:
+    def traverse(self) -> Set[Coord]:
         heading = "N"
         curpos = self.start
         traversed_squares: Set[Coord] = set()
@@ -42,7 +42,7 @@ class Field:
                 ahead = curpos + HEADINGS[heading]
             traversed_squares.add(curpos)
             curpos = ahead
-        return len(traversed_squares)
+        return traversed_squares
 
     @lru_cache(maxsize=10000)
     def next_position(self, pos: Coord, heading: str, obstacle: Optional[Coord] = None) -> Optional[Coord]:
@@ -86,22 +86,21 @@ class Field:
             if not curpos:
                 return False
 
-    def count_loop_obstacles(self):
+    def count_loop_obstacles(self, traversed_squares: Set[Coord]):
         valid_obstacle_locations = set()
-        for y in range(self.max_y + 1):
-            for x in range(self.max_x + 1):
-                new_obstacle = Coord(x=x, y=y)
-                if new_obstacle == self.start:
-                    continue
-                if new_obstacle not in self.obstacles and self.has_loop(new_obstacle):
-                    valid_obstacle_locations.add(new_obstacle)
+        for new_obstacle in traversed_squares:
+            if new_obstacle == self.start:
+                continue
+            if new_obstacle not in self.obstacles and self.has_loop(new_obstacle):
+                valid_obstacle_locations.add(new_obstacle)
         return len(valid_obstacle_locations)
 
 
 def main():
     field = Field(read_data())
-    print(f"Part one: {field.traverse()}")
-    print(f"Part two: {field.count_loop_obstacles()}")
+    traversed_squares = field.traverse()
+    print(f"Part one: {len(traversed_squares)}")
+    print(f"Part two: {field.count_loop_obstacles(traversed_squares)}")
 
 
 if __name__ == "__main__":
