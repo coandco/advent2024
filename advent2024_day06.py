@@ -1,10 +1,9 @@
-from collections import deque, defaultdict
-from functools import lru_cache
-from typing import Dict, Set, Optional, Tuple
-
-
-from utils import read_data, BaseCoord as Coord
 import time
+from functools import lru_cache
+from typing import Optional, Set, Tuple
+
+from utils import BaseCoord as Coord
+from utils import read_data
 
 HEADINGS = {"N": Coord(y=-1, x=0), "E": Coord(y=0, x=1), "S": Coord(y=1, x=0), "W": Coord(y=0, x=-1)}
 RIGHT_TURNS = {"N": "E", "E": "S", "S": "W", "W": "N"}
@@ -45,26 +44,25 @@ class Field:
             curpos = ahead
         return len(traversed_squares)
 
-
     @lru_cache(maxsize=10000)
     def next_position(self, pos: Coord, heading: str, obstacle: Optional[Coord] = None) -> Optional[Coord]:
         obstacle = {obstacle} if obstacle else set()
-        if heading == 'N':
+        if heading == "N":
             obstacles_in_way = [x for x in (self.obstacles | obstacle) if x.x == pos.x and x.y < pos.y]
             if not obstacles_in_way:
                 return None
             return max(obstacles_in_way, key=lambda x: x.y) + Coord(y=1, x=0)
-        elif heading == 'E':
+        elif heading == "E":
             obstacles_in_way = [x for x in (self.obstacles | obstacle) if x.y == pos.y and x.x > pos.x]
             if not obstacles_in_way:
                 return None
             return min(obstacles_in_way, key=lambda x: x.x) + Coord(y=0, x=-1)
-        elif heading == 'S':
+        elif heading == "S":
             obstacles_in_way = [x for x in (self.obstacles | obstacle) if x.x == pos.x and x.y > pos.y]
             if not obstacles_in_way:
                 return None
             return min(obstacles_in_way, key=lambda x: x.y) + Coord(y=-1, x=0)
-        elif heading == 'W':
+        elif heading == "W":
             obstacles_in_way = [x for x in (self.obstacles | obstacle) if x.y == pos.y and x.x < pos.x]
             if not obstacles_in_way:
                 return None
@@ -87,7 +85,6 @@ class Field:
             heading = RIGHT_TURNS[heading]
             if not curpos:
                 return False
-
 
     def count_loop_obstacles(self):
         valid_obstacle_locations = set()
