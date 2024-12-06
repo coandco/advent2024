@@ -1,4 +1,5 @@
 from collections import deque, defaultdict
+from functools import lru_cache
 from typing import Dict, Set, Optional, Tuple
 
 
@@ -44,24 +45,27 @@ class Field:
             curpos = ahead
         return len(traversed_squares)
 
-    def next_position(self, obstacles: Set[Coord], pos: Coord, heading: str) -> Optional[Coord]:
+
+    @lru_cache(maxsize=10000)
+    def next_position(self, pos: Coord, heading: str, obstacle: Optional[Coord] = None) -> Optional[Coord]:
+        obstacle = {obstacle} if obstacle else set()
         if heading == 'N':
-            obstacles_in_way = [x for x in obstacles if x.x == pos.x and x.y < pos.y]
+            obstacles_in_way = [x for x in (self.obstacles | obstacle) if x.x == pos.x and x.y < pos.y]
             if not obstacles_in_way:
                 return None
             return max(obstacles_in_way, key=lambda x: x.y) + Coord(y=1, x=0)
         elif heading == 'E':
-            obstacles_in_way = [x for x in obstacles if x.y == pos.y and x.x > pos.x]
+            obstacles_in_way = [x for x in (self.obstacles | obstacle) if x.y == pos.y and x.x > pos.x]
             if not obstacles_in_way:
                 return None
             return min(obstacles_in_way, key=lambda x: x.x) + Coord(y=0, x=-1)
         elif heading == 'S':
-            obstacles_in_way = [x for x in obstacles if x.x == pos.x and x.y > pos.y]
+            obstacles_in_way = [x for x in (self.obstacles | obstacle) if x.x == pos.x and x.y > pos.y]
             if not obstacles_in_way:
                 return None
             return min(obstacles_in_way, key=lambda x: x.y) + Coord(y=-1, x=0)
         elif heading == 'W':
-            obstacles_in_way = [x for x in obstacles if x.y == pos.y and x.x < pos.x]
+            obstacles_in_way = [x for x in (self.obstacles | obstacle) if x.y == pos.y and x.x < pos.x]
             if not obstacles_in_way:
                 return None
             return max(obstacles_in_way, key=lambda x: x.x) + Coord(y=0, x=1)
@@ -69,15 +73,17 @@ class Field:
     def has_loop(self, extra_obstacle: Coord) -> bool:
         heading = "N"
         curpos = self.start
-        history = deque(maxlen=1000)
-        obstacles = self.obstacles | {extra_obstacle}
         seen: Set[Tuple[Coord, str]] = set()
         while True:
-            history.append(curpos)
             if (curpos, heading) in seen:
                 return True
             seen.add((curpos, heading))
-            curpos = self.next_position(obstacles, curpos, heading)
+            if curpos.x == extra_obstacle.x or curpos.y == extra_obstacle.y:
+                # If we're in line with an obstacle, cache-bust it
+                curpos = self.next_position(curpos, heading, extra_obstacle)
+            else:
+                # If we're not, we can pretend it doesn't exist for better cacheability
+                curpos = self.next_position(curpos, heading)
             heading = RIGHT_TURNS[heading]
             if not curpos:
                 return False
