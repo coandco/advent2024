@@ -1,9 +1,10 @@
+import time
 from collections import defaultdict
 from itertools import combinations
 from typing import Dict, Set, Tuple
 
-from utils import read_data, BaseCoord as Coord
-import time
+from utils import BaseCoord as Coord
+from utils import read_data
 
 
 class City:
