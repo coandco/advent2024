@@ -48,7 +48,7 @@ class Diskmap:
             amount_left -= min(file.gap_after, amount_left)
 
     def reshuffled_vals(self):
-        files = deque(copy(x) for x in self.files)
+        files = [copy(x) for x in self.files]
         already_done: Set[int] = set()
         curindex = len(files) - 1
         while curindex:
