@@ -1,10 +1,11 @@
-from typing import NamedTuple, Iterable, Tuple, Optional
-
-from utils import read_data, BaseCoord as Coord
-import time
 import re
+import time
+from typing import Iterable, NamedTuple, Optional, Tuple
 
-DIGITS = re.compile(r'[+-]?\d+')
+from utils import BaseCoord as Coord
+from utils import read_data
+
+DIGITS = re.compile(r"[+-]?\d+")
 
 
 class Machine(NamedTuple):
@@ -13,13 +14,12 @@ class Machine(NamedTuple):
     prize: Coord
 
     @staticmethod
-    def from_raw(data: str, offset: int = 0) -> 'Machine':
+    def from_raw(data: str, offset: int = 0) -> "Machine":
         raw_ints = [[int(x) for x in DIGITS.findall(line)] for line in data.splitlines()]
         a = Coord(x=raw_ints[0][0], y=raw_ints[0][1])
         b = Coord(x=raw_ints[1][0], y=raw_ints[1][1])
-        prize = Coord(x=raw_ints[2][0]+offset, y=raw_ints[2][1]+offset)
+        prize = Coord(x=raw_ints[2][0] + offset, y=raw_ints[2][1] + offset)
         return Machine(a=a, b=b, prize=prize)
-
 
     def linear_solve(self) -> Optional[int]:
         determinant = (self.a.x * self.b.y) - (self.a.y * self.b.x)
@@ -33,7 +33,7 @@ class Machine(NamedTuple):
         if not all(x.is_integer() for x in (num_a, num_b)):
             # The machine isn't solvable, so we can't spend tokens on it
             return 0
-        return 3*int(num_a) + int(num_b)
+        return 3 * int(num_a) + int(num_b)
 
 
 def main():
