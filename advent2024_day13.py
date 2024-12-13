@@ -1,4 +1,4 @@
-from typing import NamedTuple, Iterable, Tuple
+from typing import NamedTuple, Iterable, Tuple, Optional
 
 from utils import read_data, BaseCoord as Coord
 import time
@@ -13,26 +13,34 @@ class Machine(NamedTuple):
     prize: Coord
 
     @staticmethod
-    def from_raw(data: str) -> 'Machine':
+    def from_raw(data: str, offset: int = 0) -> 'Machine':
         raw_ints = [[int(x) for x in DIGITS.findall(line)] for line in data.splitlines()]
         a = Coord(x=raw_ints[0][0], y=raw_ints[0][1])
         b = Coord(x=raw_ints[1][0], y=raw_ints[1][1])
-        prize = Coord(x=raw_ints[2][0], y=raw_ints[2][1])
+        prize = Coord(x=raw_ints[2][0]+offset, y=raw_ints[2][1]+offset)
         return Machine(a=a, b=b, prize=prize)
 
 
-    def btns_to_reach_prize(self, limit: int = 100) -> Iterable[Tuple[int, int]]:
-        for a_times in range(limit+1):
-            for b_times in range(limit+1):
-                if (self.a * a_times) + (self.b * b_times) == self.prize:
-                    yield a_times, b_times
+    def linear_solve(self) -> Optional[int]:
+        determinant = (self.a.x * self.b.y) - (self.a.y * self.b.x)
+        if determinant == 0:
+            # The machine isn't solvable, so we can't spend tokens on it
+            return 0
+
+        num_a = ((self.prize.x * self.b.y) - (self.prize.y * self.b.x)) / determinant
+        num_b = ((self.prize.y * self.a.x) - (self.prize.x * self.a.y)) / determinant
+
+        if not all(x.is_integer() for x in (num_a, num_b)):
+            # The machine isn't solvable, so we can't spend tokens on it
+            return 0
+        return 3*int(num_a) + int(num_b)
 
 
 def main():
     machines = [Machine.from_raw(x) for x in read_data().split("\n\n")]
-    combinations = [list(x.btns_to_reach_prize()) for x in machines]
-    combinations = [x for x in combinations if x]
-    print(f"Part one: {sum(min((3*a)+b for a, b in combination) for combination in combinations)}")
+    print(f"Part one: {sum(x.linear_solve() for x in machines)}")
+    p2_machines = [Machine.from_raw(x, offset=10000000000000) for x in read_data().split("\n\n")]
+    print(f"Part two: {sum(x.linear_solve() for x in p2_machines)}")
 
 
 if __name__ == "__main__":
