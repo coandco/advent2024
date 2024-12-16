@@ -1,6 +1,5 @@
 from pathlib import Path
-from typing import NamedTuple, Iterator
-from typing_extensions import Self
+from typing import NamedTuple, Iterator, Iterable, Type, Tuple, Self
 import inspect
 
 
@@ -37,6 +36,12 @@ class BaseCoord(NamedTuple):
 
     def __repr__(self) -> str:
         return f"Coord(x={self.x}, y={self.y})"
+
+
+def read_grid[T: BaseCoord](raw: str, cls: Type[T] = BaseCoord) -> Iterable[Tuple[T, str]]:
+    for y, line in enumerate(raw.splitlines()):
+        for x, char in enumerate(line):
+            yield cls(x=x, y=y), char
 
 
 class BaseCoord3D(NamedTuple):
