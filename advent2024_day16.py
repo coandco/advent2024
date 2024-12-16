@@ -41,12 +41,12 @@ class Maze:
             min_scores[path[-1]][heading] = min(min_scores[path[-1]][heading], score)
             if path[-1] == self.end:
                 paths_by_score[score].update(path)
+            if (new_loc := path[-1] + DIRS[heading]) not in self.walls:
+                stack.append((score + 1, path + (new_loc,), heading))
             if (new_loc := path[-1] + DIRS[LEFT_TURNS[heading]]) not in self.walls:
                 stack.append((score + 1001, path + (new_loc,), LEFT_TURNS[heading]))
             if (new_loc := path[-1] + DIRS[RIGHT_TURNS[heading]]) not in self.walls:
                 stack.append((score + 1001, path + (new_loc,), RIGHT_TURNS[heading]))
-            if (new_loc := path[-1] + DIRS[heading]) not in self.walls:
-                stack.append((score + 1, path + (new_loc,), heading))
         min_end_score = min(min_scores[self.end].values())
         return min_end_score, len(paths_by_score[min_end_score])
 
