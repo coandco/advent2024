@@ -3,7 +3,7 @@ from collections import defaultdict
 from copy import deepcopy
 from typing import Dict, Iterable, List, NamedTuple, Set
 
-from utils import BaseCoord as Coord
+from utils import BaseCoord as Coord, read_grid
 from utils import read_data
 
 DIRECTIONS = {"N": Coord(x=0, y=-1), "E": Coord(x=1, y=0), "S": Coord(x=0, y=1), "W": Coord(x=-1, y=0)}
@@ -58,11 +58,10 @@ class Farm:
     def __init__(self, raw: str):
         self.regions = defaultdict(list)
         self.raw_map = {}
-        x = y = 0
-        for y, line in enumerate(raw.splitlines()):
-            for x, char in enumerate(line):
-                self.raw_map[Coord(x=x, y=y)] = char
-        self.max_x, self.max_y = x, y
+        pos = Coord(0, 0)
+        for pos, char in read_grid(raw):
+            self.raw_map[pos] = char
+        self.max_x, self.max_y = pos.x, pos.y
         self.find_regions()
 
     def all_regions(self) -> Iterable[Region]:

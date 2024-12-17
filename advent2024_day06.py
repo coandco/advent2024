@@ -2,7 +2,7 @@ import time
 from functools import lru_cache
 from typing import Optional, Set, Tuple
 
-from utils import BaseCoord as Coord
+from utils import BaseCoord as Coord, read_grid
 from utils import read_data
 
 HEADINGS = {"N": Coord(y=-1, x=0), "E": Coord(y=0, x=1), "S": Coord(y=1, x=0), "W": Coord(y=0, x=-1)}
@@ -16,17 +16,16 @@ class Field:
     start: Coord
 
     def __init__(self, raw_field: str):
-        obstacles = set()
-        self.start = None
-        x = y = 0
-        for y, line in enumerate(raw_field.splitlines()):
-            for x, char in enumerate(line):
-                if char == "#":
-                    obstacles.add(Coord(x=x, y=y))
-                elif char == "^":
-                    self.start = Coord(x=x, y=y)
-        self.obstacles = obstacles
-        self.max_x, self.max_y = x, y
+        self.obstacles = set()
+        self.start = Coord(0, 0)
+        pos = Coord(0, 0)
+        for pos, char in read_grid(raw_field):
+            if char == "#":
+                self.obstacles.add(pos)
+            elif char == "^":
+                self.start = pos
+        self.max_x, self.max_y = pos.x, pos.y
+
 
     def in_bounds(self, loc: Coord) -> bool:
         return 0 <= loc.x <= self.max_x and 0 <= loc.y <= self.max_y

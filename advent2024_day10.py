@@ -2,7 +2,7 @@ import time
 from collections import defaultdict, deque
 from typing import Deque, Dict, Set, Tuple
 
-from utils import BaseCoord as Coord
+from utils import BaseCoord as Coord, read_grid
 from utils import read_data
 
 
@@ -13,12 +13,10 @@ class Map:
     def __init__(self, raw: str):
         self.topo = defaultdict(lambda: 99999)
         self.trailheads = set()
-        for y, line in enumerate(raw.splitlines()):
-            for x, char in enumerate(line):
-                loc = Coord(x=x, y=y)
-                self.topo[loc] = int(char)
-                if char == "0":
-                    self.trailheads.add(loc)
+        for loc, char in read_grid(raw):
+            self.topo[loc] = int(char)
+            if char == "0":
+                self.trailheads.add(loc)
 
     def find_trails(self, trailhead: Coord) -> Set[Tuple[Coord, ...]]:
         found_trails = set()

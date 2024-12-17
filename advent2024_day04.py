@@ -1,7 +1,7 @@
 import time
 from typing import Dict
 
-from utils import ALL_NEIGHBORS_2D
+from utils import ALL_NEIGHBORS_2D, read_grid
 from utils import BaseCoord as Coord
 from utils import read_data
 
@@ -39,9 +39,8 @@ def scan_x_mas(board: Board) -> int:
 
 def main():
     board = {}
-    for y, line in enumerate(read_data().splitlines()):
-        for x, char in enumerate(line):
-            board[Coord(x=x, y=y)] = char
+    for pos, char in read_grid(read_data()):
+        board[pos] = char
 
     print(f"Part one: {scan_xmas(board)}")
     print(f"Part two: {scan_x_mas(board)}")

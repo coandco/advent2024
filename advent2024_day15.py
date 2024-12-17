@@ -2,7 +2,7 @@ import time
 from typing import Optional, Set, Tuple
 
 from utils import BaseCoord as Coord
-from utils import read_data
+from utils import read_data, read_grid
 
 DIRS = {"^": Coord(x=0, y=-1), ">": Coord(x=1, y=0), "v": Coord(x=0, y=1), "<": Coord(x=-1, y=0)}
 
@@ -18,15 +18,13 @@ class Warehouse:
         self.load_map(raw_map)
 
     def load_map(self, raw_map: str):
-        for y, line in enumerate(raw_map.splitlines()):
-            for x, char in enumerate(line):
-                pos = Coord(x=x, y=y)
-                if char == "#":
-                    self.walls.add(pos)
-                elif char == "O":
-                    self.boxes.add(pos)
-                elif char == "@":
-                    self.start = pos
+        for pos, char in read_grid(raw_map, Coord):
+            if char == "#":
+                self.walls.add(pos)
+            elif char == "O":
+                self.boxes.add(pos)
+            elif char == "@":
+                self.start = pos
 
     def boxes_in_way(self, pos: Coord, heading: str) -> Tuple[Set[Coord], int]:
         boxes_in_way = set()
@@ -72,16 +70,15 @@ class Warehouse:
 
 class FatWarehouse(Warehouse):
     def load_map(self, raw_map: str):
-        for y, line in enumerate(raw_map.splitlines()):
-            for x, char in enumerate(line):
-                pos = Coord(x=2 * x, y=y)
-                doubled_pos = Coord(x=2 * x + 1, y=y)
-                if char == "#":
-                    self.walls.update({pos, doubled_pos})
-                elif char == "O":
-                    self.boxes.add(pos)
-                elif char == "@":
-                    self.start = pos
+        for old_pos, char in read_grid(raw_map, Coord):
+            pos = Coord(x=2 * old_pos.x, y=old_pos.y)
+            doubled_pos = Coord(x=2 * old_pos.x + 1, y=old_pos.y)
+            if char == "#":
+                self.walls.update({pos, doubled_pos})
+            elif char == "O":
+                self.boxes.add(pos)
+            elif char == "@":
+                self.start = pos
 
     def print(self, curpos: Optional[Coord] = None):
         max_x, max_y = max(x.x for x in self.walls), max(x.y for x in self.walls)

@@ -3,7 +3,7 @@ from collections import defaultdict
 from itertools import combinations
 from typing import Dict, Set, Tuple
 
-from utils import BaseCoord as Coord
+from utils import BaseCoord as Coord, read_grid
 from utils import read_data
 
 
@@ -18,15 +18,12 @@ class City:
     def __init__(self, raw_map: str):
         self.all_antennae = {}
         self.per_freq = defaultdict(set)
-        x = y = 0
-        for y, line in enumerate(raw_map.splitlines()):
-            for x, char in enumerate(line):
-                if char.isalnum():
-                    pos = Coord(x=x, y=y)
-                    self.all_antennae[pos] = char
-                    self.per_freq[char].add(pos)
-        self.max_x = x
-        self.max_y = y
+        pos = Coord(0, 0)
+        for pos, char in read_grid(raw_map):
+            if char.isalnum():
+                self.all_antennae[pos] = char
+                self.per_freq[char].add(pos)
+        self.max_x, self.max_y = pos.x, pos.y
 
         self.antinodes = defaultdict(set)
         self.harmonics = defaultdict(set)
