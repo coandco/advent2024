@@ -54,7 +54,7 @@ def main():
     # Now that we have a small range, find the actual answer sequentially
     for i in range_remaining:
         if memory.navigate(i) == 9999999:
-            print(f"Part two: {memory.walls[i-1].x},{memory.walls[i-i].y}")
+            print(f"Part two: {memory.walls[i-1].x},{memory.walls[i-1].y}")
             break
 
 
