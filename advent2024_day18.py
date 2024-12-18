@@ -1,8 +1,9 @@
-from collections import deque, defaultdict
-from typing import List, Dict, Deque, Tuple, Iterable
-
-from utils import read_data, BaseCoord as Coord
 import time
+from collections import defaultdict, deque
+from typing import Deque, Dict, List, Tuple
+
+from utils import BaseCoord as Coord
+from utils import read_data
 
 DIRS = {"N": Coord(x=0, y=-1), "E": Coord(x=1, y=0), "S": Coord(x=0, y=1), "W": Coord(x=-1, y=0)}
 
@@ -35,15 +36,24 @@ class Memory:
             for heading in DIRS:
                 new_loc = loc + DIRS[heading]
                 if self.in_bounds(new_loc) and new_loc not in walls:
-                    stack.append((new_loc, score+1))
+                    stack.append((new_loc, score + 1))
         return min_distances[self.end]
 
 
 def main():
     memory = Memory(read_data())
     print(f"Part one: {memory.navigate(1024)}")
-    for i in range(1025, len(memory.walls)):
-        if memory.navigate(i) > 5000:
+    range_remaining = range(1025, len(memory.walls))
+    # Cut down the range with a binary search
+    while len(range_remaining) > 5:
+        midpoint = range_remaining.start + (len(range_remaining) // 2)
+        if memory.navigate(midpoint) == 9999999:
+            range_remaining = range(range_remaining.start, midpoint)
+        else:
+            range_remaining = range(midpoint, range_remaining.stop)
+    # Now that we have a small range, find the actual answer sequentially
+    for i in range_remaining:
+        if memory.navigate(i) == 9999999:
             print(f"Part two: {memory.walls[i-1].x},{memory.walls[i-i].y}")
             break
 
