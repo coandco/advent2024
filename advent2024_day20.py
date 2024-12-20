@@ -50,10 +50,19 @@ class Racetrack:
                 if savings > 0:
                     yield savings
 
+    def path_near_pos(self, pos: Coord, dist: int) -> Iterable[Coord]:
+        for y in range(pos.y-dist, pos.y+dist+1):
+            for x in range(pos.x-dist, pos.x+dist+1):
+                # Only make a full Coord if it's a value we're yielding
+                if (y, x) in self.steps:
+                    yield Coord(x=x, y=y)
+
     def find_savings_p2(self, pos: Coord, cheat_range: int = 2) -> Iterable[int]:
-        reachable = [x for x in self.steps if 2 <= x.distance(pos) <= cheat_range]
-        for dest in reachable:
-            savings = self.steps[dest] - (self.steps[pos] + dest.distance(pos))
+        for step in self.path_near_pos(pos, cheat_range):
+            dist = step.distance(pos)
+            if not 2 <= dist <= cheat_range:
+                continue
+            savings = self.steps[step] - (self.steps[pos] + dist)
             if savings > 0:
                 yield savings
 
