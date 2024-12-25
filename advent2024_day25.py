@@ -1,10 +1,10 @@
 import time
-from typing import FrozenSet, Iterable, List, Tuple
+from typing import Iterable, List, Tuple, Set
 
 from utils import BaseCoord as Coord
 from utils import read_data, read_grid
 
-Grid = FrozenSet[Coord]
+Grid = Set[Coord]
 
 
 def parse(raw: str) -> Tuple[List[Grid], List[Grid]]:
@@ -15,9 +15,9 @@ def parse(raw: str) -> Tuple[List[Grid], List[Grid]]:
             if char == "#":
                 cloud.add(coord)
         if any(x.y == 0 for x in cloud):
-            locks.append(frozenset(cloud))
+            locks.append(cloud)
         else:
-            keys.append(frozenset(cloud))
+            keys.append(cloud)
     return locks, keys
 
 
@@ -27,7 +27,7 @@ def all_combinations(locks: List[Grid], keys: List[Grid]) -> Iterable[Tuple[Grid
             yield lock, key
 
 
-def is_overlapping(lock: FrozenSet[Coord], key: FrozenSet[Coord]) -> bool:
+def is_overlapping(lock: Grid, key: Grid) -> bool:
     return len(lock & key) > 0
 
 
