@@ -1,11 +1,8 @@
-import math
-from collections import defaultdict, deque
-from functools import cache
-from itertools import combinations_with_replacement
-from typing import Dict, Tuple, Iterable, List
-
-from utils import read_data, BaseCoord as Coord
 import time
+from functools import cache
+
+from utils import BaseCoord as Coord
+from utils import read_data
 
 DIRS = {"^": Coord(x=0, y=-1), ">": Coord(x=1, y=0), "v": Coord(x=0, y=1), "<": Coord(x=-1, y=0)}
 # precalculated SHORTEST_PATHS via A*, then froze the values into a dict
@@ -24,17 +21,13 @@ def gen_shortest(code: str, depth_left: int = 3) -> int:
         curpos = char
     return min_total
 
-
-TEST = """029A
-980A
-179A
-456A
-379A"""
+def score(code: str, num_dirpads: int) -> int:
+    return int(code[:-1]) * gen_shortest(code, num_dirpads)
 
 
 def main():
-    print(f"Part one: {sum(int(x[:-1]) * gen_shortest(x, 3) for x in read_data().splitlines())}")
-    print(f"Part two: {sum(int(x[:-1]) * gen_shortest(x, 25) for x in read_data().splitlines())}")
+    print(f"Part one: {sum(score(x, num_dirpads=3) for x in read_data().splitlines())}")
+    print(f"Part two: {sum(score(x, num_dirpads=26) for x in read_data().splitlines())}")
 
 
 if __name__ == "__main__":
@@ -43,6 +36,9 @@ if __name__ == "__main__":
     print(f"Time: {time.monotonic()-start}")
 
 
+# This is the code I used to generate SHORTEST_PATHS
+# from typing import Dict, Iterable, Tuple
+# from collections import defaultdict, deque
 # RAW_NUMPAD_LOCS = [Coord(x=x, y=y) for y in range(3) for x in range(3)] + [Coord(x=1, y=3), Coord(x=2, y=3)]
 # RAW_DIRPAD_LOCS = [Coord(x=1, y=0), Coord(x=2, y=0)] + [Coord(x=x, y=1) for x in range(3)]
 # NUMPAD = {k: v for k, v in zip("7894561230A", RAW_NUMPAD_LOCS)}
